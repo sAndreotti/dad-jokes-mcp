@@ -30,6 +30,7 @@
     "@openai/apps-sdk-ui": "^0.2.1",
     "@tanstack/react-query": "^5.90.12",
     "cors": "^2.8.5",
+    "dotenv": "^17.2.4",
     "express": "^5.2.1",
     "mcp-use": "latest",
     "node-mocks-http": "^1.17.2",
@@ -40,6 +41,7 @@
     "zod": "^4.2.0"
   },
   "devDependencies": {
+    "@modelcontextprotocol/sdk": "^1.26.0",
     "@tailwindcss/vite": "^4.1.18",
     "@types/node": "^25.0.2",
     "@vitejs/plugin-react": "^5.1.2",
