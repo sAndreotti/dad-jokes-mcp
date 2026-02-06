@@ -1,0 +1,164 @@
+openapi: 3.1.0
+info:
+  title: Dad Jokes & MuscleWiki API
+  description: Supabase Edge Functions for fetching dad jokes and MuscleWiki exercise data
+  version: 1.0.0
+
+servers:
+  - url: https://lcjhtuuwdmlxilonikct.supabase.co/functions/v1
+    description: Supabase Edge Functions
+
+security:
+  - apiKey: []
+
+paths:
+  /get-dad-jokes:
+    get:
+      operationId: getDadJoke
+      summary: Get a random dad joke
+      description: Fetches a random dad joke from icanhazdadjoke.com
+      responses:
+        '200':
+          description: A random dad joke
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DadJokeResponse'
+    post:
+      operationId: getDadJokePost
+      summary: Get a random dad joke (POST)
+      description: Fetches a random dad joke from icanhazdadjoke.com. Request body is ignored.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  description: Optional field (ignored by the API)
+      responses:
+        '200':
+          description: A random dad joke
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DadJokeResponse'
+
+  /musclewiki:
+    get:
+      operationId: searchMuscleWiki
+      summary: Search MuscleWiki exercises
+      description: Search for exercises in the MuscleWiki database
+      parameters:
+        - name: q
+          in: query
+          required: true
+          description: Search query for exercises (e.g., 'curl', 'squat', 'bench press')
+          schema:
+            type: string
+          example: curl
+        - name: limit
+          in: query
+          required: false
+          description: Maximum number of results to return
+          schema:
+            type: integer
+            default: 10
+          example: 5
+      responses:
+        '200':
+          description: List of matching exercises
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MuscleWikiSearchResponse'
+        '400':
+          description: Missing query parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Server error (missing API key or upstream failure)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    apiKey:
+      type: apiKey
+      in: header
+      name: apikey
+      description: Supabase publishable API key (also pass as Authorization Bearer header)
+
+  schemas:
+    DadJokeResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the joke
+          example: R7UfaahVfFd
+        joke:
+          type: string
+          description: The dad joke text
+          example: Why did the scarecrow win an award? Because he was outstanding in his field.
+        status:
+          type: integer
+          description: HTTP status code from upstream
+          example: 200
+      required:
+        - id
+        - joke
+
+    MuscleWikiSearchResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Exercise'
+      required:
+        - results
+
+    Exercise:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Exercise ID
+        name:
+          type: string
+          description: Exercise name
+        muscle_group:
+          type: string
+          description: Primary muscle group targeted
+        equipment:
+          type: string
+          description: Equipment required
+        difficulty:
+          type: string
+          description: Exercise difficulty level
+        video_url:
+          type: string
+          format: uri
+          description: URL to exercise demonstration video
+        image_url:
+          type: string
+          format: uri
+          description: URL to exercise image
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        details:
+          type: string
+          description: Additional error details
+      required:
+        - error
